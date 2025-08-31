@@ -1,219 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Phantom Moves — Simple Translator</title>
-<style>
-  :root{
-    --bg:#0b0b0b; --card:#151515; --muted:#ccc; --accent:#50fa7b; --accent-2:#8be9fd;
-  }
-  body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial;background:var(--bg);color:#eaeaea;padding:20px;}
-  .wrap{max-width:880px;margin:20px auto;padding:18px;background:var(--card);border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.6);}
-  h1{margin:0 0 12px;color:var(--accent-2);font-size:20px;text-align:center}
-  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
-  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-  select,input{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:#0f0f0f;color:#fff;font-size:14px}
-  .full{grid-column:1/-1}
-  .btn{width:100%;padding:12px;background:var(--accent);border:none;border-radius:8px;color:#061;cursor:pointer;font-weight:700}
-  .btn:hover{filter:brightness(.95)}
-  .out{background:#0b0b0b;border:1px solid rgba(255,255,255,0.03);padding:12px;border-radius:8px;color:#dfe;white-space:pre-wrap;font-family:monospace}
-  .row{display:flex;gap:10px}
-  .note{font-size:13px;color:var(--muted);margin-top:8px}
-  @media(max-width:720px){.grid{grid-template-columns:1fr}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kinect Skeleton Translator</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="wrap">
-    <h1>Phantom Moves — Translator</h1>
-
-    <div class="grid">
-      <div>
-        <label for="plane">Plane</label>
-        <select id="plane">
-          <option value="">— select —</option>
-          <option value="HC">Horizontal — Chest (HC)</option>
-          <option value="HW">Horizontal — Waist (HW)</option>
-          <option value="P">Perpendicular (P)</option>
-          <option value="Dr,ll">Diagonal (Right high / Left low) — Dr,ll</option>
-          <option value="Dl,rr">Diagonal (Left high / Right low) — Dl,rr</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="orientation">Orientation</label>
-        <select id="orientation">
-          <option value="">— select —</option>
-          <option value="F">Front (F)</option>
-          <option value="B">Back (B)</option>
-          <option value="R">Right (R)</option>
-          <option value="L">Left (L)</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="arm">Arm</label>
-        <select id="arm">
-          <option value="">— select —</option>
-          <option value="Ra">Right arm (Ra)</option>
-          <option value="La">Left arm (La)</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="hands">Hands</label>
-        <select id="hands">
-          <option value="">— select —</option>
-          <option value="1hnd">One (1hnd)</option>
-          <option value="2hnd">Both (2hnd)</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="handOrient">Hand orientation (general)</label>
-        <select id="handOrient">
-          <option value="">— select —</option>
-          <option value="SbS">Side by side (SbS)</option>
-          <option value="PD">Palms down (PD)</option>
-          <option value="RPD_LPU">R palm down & L palm up</option>
-          <option value="LPD_RPU">L palm down & R palm up</option>
-          <option value="Croll">Cross right over left (Croll)</option>
-          <option value="Clorr">Cross left over right (Clorr)</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="bothPos">If both hands — position</label>
-        <select id="bothPos">
-          <option value="">— select —</option>
-          <option value="Re">Both hands right end (Re)</option>
-          <option value="md">Both hands middle (md)</option>
-          <option value="Le">Both hands left end (Le)</option>
-        </select>
-      </div>
-
-      <div class="full">
-        <button id="translateBtn" class="btn">Translate</button>
-        <div class="note">Choose fields and click <strong>Translate</strong>. You’ll get the machine notation string and a human-readable sentence below.</div>
-      </div>
-
-      <div class="full">
-        <label>Machine code (notation)</label>
-        <div id="machine" class="out">—</div>
-      </div>
-
-      <div class="full">
-        <label>Human readable</label>
-        <div id="human" class="out">—</div>
-      </div>
+  <div class="container">
+    <h1>Kinect Skeleton Translator</h1>
+    
+    <label for="ruleSelect">Choose a rule:</label>
+    <select id="ruleSelect">
+      <option value="single">If one hand is holding the stick</option>
+      <option value="either">If either hand is holding the stick</option>
+      <option value="both">If both hands are holding the stick</option>
+    </select>
+    
+    <button id="translateBtn">Translate</button>
+    
+    <div class="output">
+      <h2>Human-Readable Explanation</h2>
+      <p id="humanOutput"></p>
+      
+      <h2>Code</h2>
+      <pre><code id="codeOutput"></code></pre>
+      
+      <h2>Input Condition</h2>
+      <pre><code id="inputOutput"></code></pre>
     </div>
   </div>
-
-<script>
-(function(){
-  const planeEl = document.getElementById('plane');
-  const orientEl = document.getElementById('orientation');
-  const armEl = document.getElementById('arm');
-  const handsEl = document.getElementById('hands');
-  const handOrientEl = document.getElementById('handOrient');
-  const bothPosEl = document.getElementById('bothPos');
-  const machineOut = document.getElementById('machine');
-  const humanOut = document.getElementById('human');
-  const btn = document.getElementById('translateBtn');
-
-  function buildNotation(){
-    const plane = planeEl.value;          // HC, HW, P, Dr,ll, Dl,rr
-    const orient = orientEl.value;        // F,B,R,L
-    const arm = armEl.value;              // Ra,La
-    const hands = handsEl.value;          // 1hnd,2hnd
-    const handOrient = handOrientEl.value;// SbS,PD,RPD_LPU,...
-    const bothPos = bothPosEl.value;      // Re,md,Le
-
-    // validation: must have plane + arm + hands at minimum
-    if(!plane || !arm || !hands){
-      return {ok:false, msg:'Select at least Plane, Arm and Hands.'};
-    }
-
-    // Determine final "hand orientation" token and "location" token
-    // If both hands, bothPos defines location (Re/md/Le) where appropriate, otherwise use single-hand location default (hrs/hls/hms) inferred from arm
-    let handOrientToken = '';
-    let locationToken = '';
-
-    // Map palm combos first
-    if(handOrient === 'PD'){ // both palms down
-      handOrientToken = 'PD';
-    } else if(handOrient === 'RPD_LPU'){ // Right palm down & Left palm up
-      handOrientToken = 'RPD_LPU';
-    } else if(handOrient === 'LPD_RPU'){
-      handOrientToken = 'LPD_RPU';
-    } else if(handOrient === 'SbS'){
-      handOrientToken = 'SbS';
-    } else if(handOrient === 'Croll' || handOrient === 'Clorr'){
-      handOrientToken = handOrient;
-    }
-
-    // Decide location token
-    if(hands === '2hnd'){
-      // if both hands and bothPos selected, use that as location token (Re, md, Le); if not selected, default to Be (both ends)
-      if(bothPos){ 
-        locationToken = bothPos; // Re, md, Le
-      } else {
-        locationToken = 'Be'; // both ends
+  
+  <script>
+    document.getElementById("translateBtn").addEventListener("click", () => {
+      const rule = document.getElementById("ruleSelect").value;
+      let human = "";
+      let code = "";
+      let input = "";
+      
+      if (rule === "single") {
+        human = "The stick is considered held if exactly one hand is gripping it.";
+        input = "leftHand.holding || rightHand.holding";
+        code = `if (leftHand.holding || rightHand.holding) {
+    log("Stick held in one hand");
+}`;
+      } 
+      else if (rule === "either") {
+        human = "The stick is considered held if at least one hand is gripping it.";
+        input = "leftHand.holding || rightHand.holding";
+        code = `if (leftHand.holding || rightHand.holding) {
+    log("Stick held in either hand");
+}`;
+      } 
+      else if (rule === "both") {
+        human = "The stick is considered held only if BOTH hands are gripping it at the same time.";
+        input = "leftHand.holding && rightHand.holding";
+        code = `if (leftHand.holding && rightHand.holding) {
+    log("Stick held with both hands");
+}`;
       }
-    } else {
-      // one hand: infer side from arm (Ra => right side hrs; La => left side hls)
-      locationToken = (arm === 'Ra') ? 'hrs' : 'hls';
-    }
-
-    // If handOrientToken is empty but both hands and no specific orient selected, default to SbS
-    if(!handOrientToken){
-      handOrientToken = (hands === '2hnd') ? 'SbS' : 'PD';
-    }
-
-    // Build notation sequence: plane orientation arm hands handOrient location
-    // Some tokens like bothPos (Re,md,Le) we keep as-is
-    const tokens = [plane, orient || '', arm, hands, handOrientToken, locationToken].filter(Boolean);
-    return {ok:true, notation: tokens.join(' '), fields:{plane,orient,arm,hands,handOrient:handOrientToken,location:locationToken}};
-  }
-
-  function buildHuman(fields){
-    if(!fields) return '';
-    const mapPlane = {
-      'HC':'Horizontal (chest)','HW':'Horizontal (waist)','P':'Perpendicular',
-      'Dr,ll':'Diagonal (right high / left low)','Dl,rr':'Diagonal (left high / right low)'
-    };
-    const mapOrient = {'F':'Front','B':'Back','R':'Right','L':'Left'};
-    const mapArm = {'Ra':'Right arm','La':'Left arm'};
-    const mapHands = {'1hnd':'one hand','2hnd':'both hands'};
-    const mapHandOrient = {
-      'PD':'palms down','SbS':'side by side','Croll':'cross right over left','Clorr':'cross left over right',
-      'RPD_LPU':'right palm down & left palm up','LPD_RPU':'left palm down & right palm up'
-    };
-    const locMap = {'hrs':'right','hls':'left','md':'middle','Re':'right end','Le':'left end','Be':'both ends'};
-
-    const parts = [];
-    parts.push(`Plane: ${mapPlane[fields.plane]||fields.plane}`);
-    if(fields.orient) parts.push(`Orientation: ${mapOrient[fields.orient]||fields.orient}`);
-    parts.push(`Arm: ${mapArm[fields.arm]||fields.arm}`);
-    parts.push(`Hands: ${mapHands[fields.hands]||fields.hands}`);
-    parts.push(`Hand Orientation: ${mapHandOrient[fields.handOrient]||fields.handOrient}`);
-    parts.push(`Location: ${locMap[fields.location]||fields.location}`);
-
-    return parts.join(', ');
-  }
-
-  btn.addEventListener('click', ()=>{
-    const r = buildNotation();
-    if(!r.ok){
-      machineOut.textContent = 'Error: ' + r.msg;
-      humanOut.textContent = '--';
-      return;
-    }
-    machineOut.textContent = r.notation;
-    humanOut.textContent = buildHuman(r.fields);
-  });
-
-})();
-</script>
+      
+      document.getElementById("humanOutput").innerText = human;
+      document.getElementById("inputOutput").innerText = input;
+      document.getElementById("codeOutput").innerText = code;
+    });
+  </script>
 </body>
 </html>
