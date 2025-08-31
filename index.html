@@ -1,135 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Phantom Moves Translator</title>
-<style>
-body { font-family: Arial, sans-serif; padding: 20px; }
-label { display:block; margin-top:10px; font-weight:bold; }
-select { width: 250px; padding:5px; margin-bottom:5px; }
-button { padding:8px 12px; font-size:14px; margin-top:10px; margin-right:5px; }
-textarea { width: 100%; height:80px; font-size:14px; margin-top:10px; }
-</style>
+  <meta charset="UTF-8">
+  <title>Phantom Moves Translate</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      background: #222;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 700px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #8be9fd;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 12px 0 6px;
+    }
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      background: #333;
+      color: #eee;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background: #50fa7b;
+      color: #111;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #40d967;
+    }
+    .output {
+      margin-top: 20px;
+      padding: 15px;
+      background: #333;
+      border-radius: 8px;
+      font-size: 18px;
+      color: #f1fa8c;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Phantom Moves Translate</h1>
 
-<h2>Phantom Moves Translator</h2>
+    <label for="plane">Plane</label>
+    <select id="plane">
+      <option>Vertical</option>
+      <option>Horizontal</option>
+      <option>Sagittal</option>
+    </select>
 
-<label>Plane</label>
-<select id="plane">
-  <option value="">--Select Plane--</option>
-  <option value="HC">chest</option>
-  <option value="HW">waist</option>
-  <option value="P">perpendicular</option>
-  <option value="Dr,ll">diag r high l low</option>
-  <option value="Dl,rr">diag l high r low</option>
-</select>
+    <label for="orientation">Orientation</label>
+    <select id="orientation">
+      <option>Head</option>
+      <option>Chest</option>
+      <option>Waist</option>
+      <option>Feet</option>
+    </select>
 
-<label>Orientation</label>
-<select id="orientation">
-  <option value="">--Select Orientation--</option>
-  <option value="F">front</option>
-  <option value="B">back</option>
-  <option value="R">right</option>
-  <option value="L">left</option>
-</select>
+    <label for="hands">Hands</label>
+    <select id="hands">
+      <option>One</option>
+      <option>Both</option>
+    </select>
 
-<label>Arm</label>
-<select id="arm">
-  <option value="">--Select Arm--</option>
-  <option value="Ra">right</option>
-  <option value="La">left</option>
-</select>
+    <label for="hand-orientation">Hand Orientation</label>
+    <select id="hand-orientation">
+      <option>Side by Side</option>
+      <option>Both Hands Right End</option>
+      <option>Both Hands Middle</option>
+      <option>Both Hands Left End</option>
+      <option>Palms Down</option>
+      <option>Right Palm Down & Left Palm Up</option>
+      <option>Left Palm Down & Right Palm Up</option>
+    </select>
 
-<label>Hands</label>
-<select id="hands">
-  <option value="">--Select Hands--</option>
-  <option value="1hnd">one</option>
-  <option value="2hnd">two</option>
-</select>
+    <button onclick="showMove()">Translate Move</button>
 
-<label>Hand Orientation</label>
-<select id="hand_orient">
-  <option value="">--Select Hand Orientation--</option>
-  <option value="PD">palm down</option>
-  <option value="PU">palm up</option>
-  <option value="IR">inward</option>
-  <option value="UC">uncrossed</option>
-  <option value="SbS">side by side</option>
-  <option value="Croll">cross right over left</option>
-  <option value="Clorr">cross left over right</option>
-</select>
+    <div class="output" id="output">Your move will appear here</div>
+  </div>
 
-<label>Location</label>
-<select id="location">
-  <option value="">--Select Location--</option>
-  <option value="hrs">right</option>
-  <option value="hms">middle</option>
-  <option value="hls">left</option>
-  <option value="hte">top</option>
-  <option value="hbe">bottom</option>
-  <option value="Be">both ends</option>
-</select>
+  <script>
+    function showMove() {
+      const plane = document.getElementById('plane').value;
+      const orientation = document.getElementById('orientation').value;
+      const hands = document.getElementById('hands').value;
+      const handOrientation = document.getElementById('hand-orientation').value;
 
-<br>
-<button onclick="toNotation()">Convert to Notation</button>
-<button onclick="toHuman()">Convert to Human-readable</button>
-<button onclick="clearAll()">Clear</button>
-
-<label>Notation</label>
-<textarea id="notation" placeholder="Notation will appear here"></textarea>
-
-<script>
-// Reverse mapping for human-readable text
-const planesText = {"HC":"chest","HW":"waist","P":"perpendicular","Dr,ll":"diag r high l low","Dl,rr":"diag l high r low"};
-const orientationsText = {"F":"front","B":"back","R":"right","L":"left"};
-const armsText = {"Ra":"right","La":"left"};
-const handsText = {"1hnd":"one","2hnd":"two"};
-const handOrientText = {"PD":"palm down","PU":"palm up","IR":"inward","UC":"uncrossed","SbS":"side by side","Croll":"cross right over left","Clorr":"cross left over right"};
-const locationsText = {"hrs":"right","hms":"middle","hls":"left","hte":"top","hbe":"bottom","Be":"both ends"};
-
-function toNotation(){
-    const p = document.getElementById("plane").value;
-    const o = document.getElementById("orientation").value;
-    const a = document.getElementById("arm").value;
-    const h = document.getElementById("hands").value;
-    const ho = document.getElementById("hand_orient").value;
-    const l = document.getElementById("location").value;
-    document.getElementById("notation").value = [p,o,a,h,ho,l].filter(Boolean).join(' ');
-}
-
-function toHuman(){
-    const notation = document.getElementById("notation").value.trim().split(/\s+/);
-    if(notation.length>0){
-        const [p,o,a,h,ho,l] = notation;
-        const text = [
-            p ? "Plane: "+planesText[p] : "",
-            o ? "Orientation: "+orientationsText[o] : "",
-            a ? "Arm: "+armsText[a] : "",
-            h ? "Hands: "+handsText[h] : "",
-            ho ? "Hand Orientation: "+handOrientText[ho] : "",
-            l ? "Location: "+locationsText[l] : ""
-        ].filter(Boolean).join(', ');
-        // Fill dropdowns with the selected value as well
-        if(p) document.getElementById("plane").value=p;
-        if(o) document.getElementById("orientation").value=o;
-        if(a) document.getElementById("arm").value=a;
-        if(h) document.getElementById("hands").value=h;
-        if(ho) document.getElementById("hand_orient").value=ho;
-        if(l) document.getElementById("location").value=l;
-        document.getElementById("notation").value = notation.join(' ');
-        alert("Human-readable: "+text);
+      const result = `${plane} plane, ${orientation} orientation, ${hands} hand(s), ${handOrientation}`;
+      document.getElementById('output').innerText = result;
     }
-}
-
-function clearAll(){
-    ["plane","orientation","arm","hands","hand_orient","location"].forEach(id=>{
-        document.getElementById(id).value="";
-    });
-    document.getElementById("notation").value="";
-}
-</script>
-
+  </script>
 </body>
 </html>
-
