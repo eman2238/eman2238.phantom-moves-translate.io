@@ -2,121 +2,135 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Phantom Moves Translate</title>
+  <title>Gesture Translator</title>
   <style>
     body {
-      background-color: #111;
+      background: #111;
       color: #eee;
       font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-      margin: 0;
       padding: 20px;
-    }
-    .container {
-      background: #222;
-      padding: 20px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 700px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
     h1 {
       text-align: center;
-      margin-bottom: 20px;
-      color: #8be9fd;
+      color: #f0a;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .input-box, .output-box {
+      background: #222;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
     }
     label {
-      font-weight: bold;
       display: block;
-      margin: 12px 0 6px;
+      margin: 10px 0 5px;
+      font-weight: bold;
     }
     select {
       width: 100%;
-      padding: 10px;
-      border-radius: 8px;
+      padding: 8px;
+      border-radius: 5px;
       border: none;
-      font-size: 16px;
       background: #333;
       color: #eee;
     }
     button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      font-size: 18px;
+      margin-top: 15px;
+      padding: 10px 15px;
       border: none;
       border-radius: 8px;
-      background: #50fa7b;
-      color: #111;
+      background: #f0a;
+      color: white;
+      font-size: 16px;
       cursor: pointer;
-      font-weight: bold;
     }
     button:hover {
-      background: #40d967;
+      background: #c08;
     }
-    .output {
-      margin-top: 20px;
-      padding: 15px;
-      background: #333;
-      border-radius: 8px;
-      font-size: 18px;
-      color: #f1fa8c;
+    pre {
+      background: #111;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
     }
   </style>
 </head>
 <body>
+  <h1>Gesture Translator</h1>
   <div class="container">
-    <h1>Phantom Moves Translate</h1>
+    <!-- Input side -->
+    <div class="input-box">
+      <label for="plane">Plane</label>
+      <select id="plane">
+        <option value="Horizontal">Horizontal</option>
+        <option value="Vertical">Vertical</option>
+        <option value="Sagittal">Sagittal</option>
+      </select>
 
-    <label for="plane">Plane</label>
-    <select id="plane">
-      <option>Vertical</option>
-      <option>Horizontal</option>
-      <option>Sagittal</option>
-    </select>
+      <label for="orientation">Orientation</label>
+      <select id="orientation">
+        <option value="Chest">Chest</option>
+        <option value="Waist">Waist</option>
+        <option value="Head">Head</option>
+      </select>
 
-    <label for="orientation">Orientation</label>
-    <select id="orientation">
-      <option>Head</option>
-      <option>Chest</option>
-      <option>Waist</option>
-      <option>Feet</option>
-    </select>
+      <label for="hands">Hands</label>
+      <select id="hands">
+        <option value="One">One Hand</option>
+        <option value="Both">Both Hands</option>
+      </select>
 
-    <label for="hands">Hands</label>
-    <select id="hands">
-      <option>One</option>
-      <option>Both</option>
-    </select>
+      <label for="hand-orientation">Hand Orientation</label>
+      <select id="hand-orientation">
+        <option value="SideBySide">Side by Side</option>
+        <option value="BothEnd">Both Hands at Ends</option>
+        <option value="BothMiddle">Both Hands Middle</option>
+        <option value="BothLeftEnd">Both Hands Left End</option>
+      </select>
 
-    <label for="hand-orientation">Hand Orientation</label>
-    <select id="hand-orientation">
-      <option>Side by Side</option>
-      <option>Both Hands Right End</option>
-      <option>Both Hands Middle</option>
-      <option>Both Hands Left End</option>
-      <option>Palms Down</option>
-      <option>Right Palm Down & Left Palm Up</option>
-      <option>Left Palm Down & Right Palm Up</option>
-    </select>
+      <label for="palms">Palms</label>
+      <select id="palms">
+        <option value="BothDown">Both Palms Down</option>
+        <option value="BothUp">Both Palms Up</option>
+        <option value="RDownLUp">Right Down & Left Up</option>
+        <option value="LDownRUp">Left Down & Right Up</option>
+      </select>
 
-    <button onclick="showMove()">Translate Move</button>
+      <button onclick="translate()">Translate</button>
+    </div>
 
-    <div class="output" id="output">Your move will appear here</div>
+    <!-- Output side -->
+    <div class="output-box">
+      <h3>Machine Code</h3>
+      <pre id="codeOutput">--</pre>
+      <h3>Human Readable</h3>
+      <pre id="textOutput">--</pre>
+    </div>
   </div>
 
   <script>
-    function showMove() {
-      const plane = document.getElementById('plane').value;
-      const orientation = document.getElementById('orientation').value;
-      const hands = document.getElementById('hands').value;
-      const handOrientation = document.getElementById('hand-orientation').value;
+    function translate() {
+      let plane = document.getElementById("plane").value;
+      let orientation = document.getElementById("orientation").value;
+      let hands = document.getElementById("hands").value;
+      let handOrientation = document.getElementById("hand-orientation").value;
+      let palms = document.getElementById("palms").value;
 
-      const result = `${plane} plane, ${orientation} orientation, ${hands} hand(s), ${handOrientation}`;
-      document.getElementById('output').innerText = result;
+      // Generate machine-readable code
+      let code = `${plane}_${orientation}_${hands}_${handOrientation}_${palms}`;
+
+      // Generate human-readable description
+      let text = `Plane: ${plane}, Orientation: ${orientation}, Hands: ${hands}, ` +
+                 `Hand Orientation: ${handOrientation}, Palms: ${palms}`;
+
+      document.getElementById("codeOutput").innerText = code;
+      document.getElementById("textOutput").innerText = text;
     }
   </script>
 </body>
